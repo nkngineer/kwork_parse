@@ -1,33 +1,23 @@
-import logging
 import os
 
 from dotenv import load_dotenv
 from mistralai.client import Mistral
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler("../mistral.log", encoding="utf-8"),
-        logging.StreamHandler(),
-    ],
-)
-log = logging.getLogger(__name__)
-
 load_dotenv()
-client = Mistral(os.getenv("MISTRAL_API_KEY"))
+api_key = os.getenv("MISTRAL_API_KEY")
+if not api_key:
+    raise ValueError("Mistral API key is empty")
 
-TOKEN_ESTIMATE_DIVISOR = 4
-MAX_TOKENS = 32000
-
-
-def estimate_tokens(text: str) -> int:
-    return len(text) // TOKEN_ESTIMATE_DIVISOR
+client = Mistral(api_key)
 
 
-def get_categorized_description(joined_cards: str):
+def get_categorized_description(joined_cards: str) -> str | None:
+    """
+    This function get card description from the Parser in parse_kwork.py and process it by prompt
+    Then, function returns output from the AI
+    """
 
-    prompt = f"""
+    ru_prompt = f"""
     Ты — опытный системный аналитик и HR-специалист. Твоя задача — проанализировать сырое описание требований к заданию (или вакансии), извлечь из него ключевую информацию и очистить от "воды".
 
     Твои шаги:
@@ -51,33 +41,22 @@ def get_categorized_description(joined_cards: str):
     Вот текст для анализа:
     {joined_cards}
     """
-    prompt_tokens = estimate_tokens(prompt)
-    log.info(
-        "Prompt: %d chars, ~%d tokens (limit: %d, usage: %.1f%%)",
-        len(prompt),
-        prompt_tokens,
-        MAX_TOKENS,
-        prompt_tokens / MAX_TOKENS * 100,
-    )
 
-    response = client.chat.complete(
-        model="mistral-large-latest",
-        messages=[
-            {
-                "role": "user",
-                "content": f"{prompt}",
-            }
-        ],
-    )
+    try:
+        response = client.chat.complete(
+            model="mistral-large-latest",
+            messages=[
+                {
+                    "role": "user",
+                    "content": ru_prompt,
+                }
+            ],
+        )
+        content = response.choices[0].message.content
 
-    content = response.choices[0].message.content
-    response_tokens = estimate_tokens(content)
-    log.info(
-        "Response: %d chars, ~%d tokens",
-        len(content),
-        response_tokens,
-    )
-    log.info("Total ~%d tokens (prompt + response)", prompt_tokens + response_tokens)
+    except Exception as e:
+        print(f"Response error: {e}")
+        return None
 
     return content
 
