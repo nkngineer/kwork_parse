@@ -17,7 +17,7 @@ python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 pip install -r requirements.txt
-python parser/parse_kwork.py
+python -m parser.parse_kwork.py
 ```
 ## Future
 - save card history in memory or database
