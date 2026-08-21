@@ -23,5 +23,6 @@ python -m parser.parse_kwork.py
 - save card history in memory or database
 - automatic delete tasks with expired time
 - filtering categories
+- json-structured answer from the AI
 - check relevance of the card by comparing with the current stack
 - \* backend wrapper
