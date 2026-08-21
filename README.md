@@ -2,14 +2,21 @@
 This is the parser of kwork.ru. 
 
 This script process cards of freelance marketplace by the AI(Mistral, Gigachat).
-Target of this script - get analyzed test task and print required skills, stack and short description.  
+Target of this script - get analyzed test task and print required skills, stack and short description.
+
 ## Login
 Before authorization, you need to write your email and password in .env
 
 For the authorization you need to start function self.auth() in kwork_parse.py.
+
+## Using
+Before start kwork_parse.py you need to set API keys(MISTRAL_API_KEY, GIGACHAT_API_KEY) and data of your account(KWORK_LOGIN, KWORK_PASSWORD) in .env.
+
 ## Filtering
 For the filtration, you need to authorize in kwork.ru, set the filters and set the way to your browser profile settings in .env. `PROFILE_PATH=...`
+
 ## How to use
+
 ```bash
 git clone https://github.com/nkngineer/kwork_parse.git
 cd kwork_parse
@@ -19,6 +26,7 @@ venv\Scripts\activate     # Windows
 pip install -r requirements.txt
 python -m parser.parse_kwork.py
 ```
+
 ## Future
 - save card history in memory or database
 - automatic delete tasks with expired time
