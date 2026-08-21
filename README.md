@@ -10,10 +10,10 @@ Before authorization, you need to write your email and password in .env
 For the authorization you need to start function self.auth() in kwork_parse.py.
 
 ## Using
-Before start kwork_parse.py you need to set API keys(MISTRAL_API_KEY, GIGACHAT_API_KEY) and data of your account(KWORK_LOGIN, KWORK_PASSWORD) in .env.
+Before starting kwork_parse.py you need to set your API keys(MISTRAL_API_KEY, GIGACHAT_API_KEY) and account credentials(KWORK_LOGIN, KWORK_PASSWORD) in the .env file.
 
 ## Filtering
-For the filtration, you need to authorize in kwork.ru, set the filters and set the way to your browser profile settings in .env. `PROFILE_PATH=...`
+For the filtration, you need to authorize in kwork.ru, set the filters and set the way to your browser profile settings in the .env file. `PROFILE_PATH=...`
 
 ## How to use
 
