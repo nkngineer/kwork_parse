@@ -1,12 +1,14 @@
 import sqlite3
 
 
+# TODO: add verification for the insert values
 class Database:
     def __init__(self, db_path="data.sqlite"):
         """Initialization: path, connect to database, create required variables."""
         self.db_path = db_path
         self.connect()
         self.create_table()
+        self.create_view()
 
     def connect(self):
         """Connection: connect to database, create cursor variable."""
@@ -32,6 +34,23 @@ class Database:
             );
         """)
 
+    def create_view(self):
+        """Create a view to display the table"""
+        self.cursor.execute("""
+            CREATE VIEW IF NOT EXISTS kwork_view AS
+            SELECT
+                id,
+                title,
+                description,
+                url,
+                cost,
+                date_posted,
+                ai_description
+            FROM kwork
+            WHERE datetime(date_posted) > datetime('now');
+        """)
+        # WHERE date_posted > CURRENT_TIMESTAMP;
+
     def insert(self, title, description, url, card_cost, date_posted, ai_description):
         """Inserts user-provided values into the specified table(kwork)."""
         self.cursor.execute(
@@ -51,7 +70,7 @@ class Database:
 
     def fetch_all(self):
         """Outputs all the values from the table `kwork`"""
-        self.cursor.execute("""SELECT * FROM kwork""")
+        self.cursor.execute("""SELECT * FROM kwork_view""")
         return self.cursor.fetchall()
 
     def commit(self):
