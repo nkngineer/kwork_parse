@@ -1,4 +1,6 @@
+import datetime
 import os
+import re
 
 from dotenv import load_dotenv
 from selenium import webdriver
@@ -7,6 +9,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from time_processing_processing import get_kwork_time_delta
 
 from ai.gigachat_processing import get_categorized_description
 from database import Database
@@ -28,8 +31,7 @@ class Parser:
 
         self.selenium_set()
         self.driver = webdriver.Chrome(options=self.options)
-
-        self.page_len: int = self.get_page_len()
+        self.page_len = self.get_page_len() or 1
         if not self.page_len:
             raise RuntimeError(
                 "Failed to initialize parser: could not determine page count"
@@ -81,7 +83,7 @@ class Parser:
 
         print("Logged in")
 
-    def get_page_len(self):
+    def get_page_len(self) -> int:
         """
         Returns len of all pages at the market.
         There is always one more page(taken into account).
@@ -89,21 +91,21 @@ class Parser:
         try:
             self.driver.get("https://kwork.ru/projects")
         except Exception as e:
-            print("Cannot connect to https://kwork.ru/projects")
-            print(e)
-            return
+            raise Exception("Cannot connect to https://kwork.ru/projects") from e
 
-        try:
-            pages = self.driver.find_elements(By.CLASS_NAME, "pagination__item")
-            if pages:
-                print("page_count: ", len(pages))
-                return len(pages)
-            else:
-                raise ValueError("Page count is 0")
-        except Exception as e:
-            print("Cannot get page count")
-            print(e)
-            return
+        page_count = []
+        items = self.driver.find_elements(By.CLASS_NAME, "pagination__item")
+        for item in items:
+            text = item.text.strip()
+            if text.isdigit():
+                page_count.append(int(text))
+
+        if page_count:
+            # print(max(page_count))
+            return max(page_count)
+
+        print("One page")
+        return 1
 
     def _card_project_url(self, card) -> str | None:
         """
@@ -150,6 +152,8 @@ class Parser:
         """
         for page in range(1, self.page_len):
             url = f"https://kwork.ru/projects?a=1&page={page}"
+            if not url:
+                raise ValueError("No pages to process")
 
             try:
                 self.driver.get(url)
@@ -196,10 +200,15 @@ class Parser:
                     description = card_description.text
                     card_cost = card.find_element(By.CLASS_NAME, "wants-card__right")
                     cost = card_cost.text
+
                     time_left_element = card.find_element(
                         By.XPATH, ".//span[contains(text(), 'Осталось')]"
                     )
                     time_left = time_left_element.text
+                    time_left = time_left.replace("Осталось", "")
+                    time_delta = get_kwork_time_delta(time_left)
+                    time_left = datetime.datetime.now() + time_delta
+
                     ai_description = get_categorized_description(description)
 
                     offer_url, offer_text = self.get_offer_url(card)
