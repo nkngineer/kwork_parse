@@ -28,10 +28,10 @@ python -m parser.parse_kwork.py
 ```
 
 ## Future
-- automatic delete tasks with expired time
 - filtering categories
 - json-structured answer from the AI
 - check relevance of the card by comparing with the current stack
 - \* backend wrapper
 ## Completed
 - save card history in database
+- hide tasks with expired time
