@@ -1,7 +1,6 @@
 import sqlite3
 
 
-# TODO: add verification for the insert values
 class Database:
     def __init__(self, db_path="data.sqlite"):
         """Initialization: path, connect to database, create required variables."""
@@ -27,7 +26,7 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title VARCHAR(255),
                 description VARCHAR(255),
-                url VARCHAR(255),
+                url VARCHAR(255) UNIQUE,
                 cost INTEGER,
                 date_posted TIMESTAMP,
                 ai_description VARCHAR(255)
